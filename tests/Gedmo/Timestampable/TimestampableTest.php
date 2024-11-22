@@ -16,6 +16,7 @@ use Doctrine\Persistence\Proxy;
 use Gedmo\Tests\Clock;
 use Gedmo\Tests\Timestampable\Fixture\Article;
 use Gedmo\Tests\Timestampable\Fixture\Author;
+use Gedmo\Tests\Timestampable\Fixture\Category;
 use Gedmo\Tests\Timestampable\Fixture\Comment;
 use Gedmo\Tests\Timestampable\Fixture\Type;
 use Gedmo\Tests\Tool\BaseTestCaseORM;
@@ -284,10 +285,31 @@ final class TimestampableTest extends BaseTestCaseORM
         static::assertInstanceOf(\DateTime::class, $found->getReachedRelevantLevel());
     }
 
+    public function testChangingCategoryTitleIsTracked()
+    {
+        $sport = new Article();
+        $sport->setTitle('Sport');
+        $sport->setBody('Sport article body.');
+        $category = new Category('Category Title');
+        $sport->setCategory($category);
+
+        $this->em->persist($sport);
+        $this->em->persist($category);
+        $this->em->flush();
+
+        static::assertNull($sport->getCategoryChanged());
+
+        $category->setTitle('New Category Title');
+        $this->em->flush();
+
+        static::assertInstanceOf(\DateTime::class, $sport->getCategoryChanged());
+    }
+
     protected function getUsedEntityFixtures(): array
     {
         return [
             Article::class,
+            Category::class,
             Comment::class,
             Type::class,
         ];

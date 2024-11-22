@@ -36,6 +36,20 @@ class Article implements Timestampable
     #[ORM\Column(type: Types::INTEGER)]
     private $id;
 
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    private ?Category $category = null;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="category_changed", type="datetime", nullable=true)
+     *
+     * @Gedmo\Timestampable(on="change", field={"category.title"})
+     */
+    #[ORM\Column(name: 'category_changed', type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Gedmo\Timestampable(on: 'change', field: ['category.title'])]
+    private $categoryChanged;
+
     /**
      * @ORM\Column(name="title", type="string", length=128)
      */
@@ -250,5 +264,25 @@ class Article implements Timestampable
     public function getReachedRelevantLevel(): ?\DateTimeInterface
     {
         return $this->reachedRelevantLevel;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): void
+    {
+        $this->category = $category;
+    }
+
+    public function getCategoryChanged(): ?\DateTime
+    {
+        return $this->categoryChanged;
+    }
+
+    public function setCategoryChanged(?\DateTime $categoryChanged): void
+    {
+        $this->categoryChanged = $categoryChanged;
     }
 }
